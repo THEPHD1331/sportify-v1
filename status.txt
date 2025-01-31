@@ -1,0 +1,3 @@
+DONE CRUD for - Product, Category, Image, Cart, CartItem, User.
+
+Remaining - Security, basic auth, role based auth, AOP
