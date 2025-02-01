@@ -1,11 +1,13 @@
 package com.sportify.app.service.order;
 
+import com.sportify.app.dto.response.OrderDTO;
 import com.sportify.app.entity.*;
 import com.sportify.app.enums.OrderStatus;
 import com.sportify.app.exception.ResourceNotFoundException;
 import com.sportify.app.repository.OrderRepository;
 import com.sportify.app.repository.ProductRepository;
 import com.sportify.app.service.cart.CartService;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,6 +31,8 @@ public class OrderServiceImpl implements OrderService{
     private ProductRepository productRepository;
     @Autowired
     private CartService cartService;
+    @Autowired
+    private ModelMapper mapper;
 
     @Override
     public Order placeOrder(long userId) {
@@ -54,14 +58,23 @@ public class OrderServiceImpl implements OrderService{
     }
 
     @Override
-    public Order getOrder(long orderId) {
+    public OrderDTO getOrder(long orderId) {
         return orderRepository.findById(orderId)
+                .map(order -> mapper.map(order, OrderDTO.class))
                 .orElseThrow(() -> new ResourceNotFoundException("Order Not Found"));
     }
 
     @Override
-    public List<Order> getOrdersByUser(long userId){
-        return orderRepository.findByUserId(userId);
+    public List<OrderDTO> getOrdersByUser(long userId){
+        return orderRepository.findByUserId(userId)
+                .stream()
+                .map(order -> mapper.map(order, OrderDTO.class))
+                .toList();
+    }
+
+    @Override
+    public void cancelOrder(long orderId) {
+        orderRepository.findById(orderId).get().setOrderStatus(OrderStatus.CANCELLED);
     }
 
     // Initialize an order with no order items

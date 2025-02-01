@@ -1,8 +1,10 @@
 package com.sportify.app.controller;
 
 import com.sportify.app.dto.response.ApiResponse;
+import com.sportify.app.dto.response.OrderDTO;
 import com.sportify.app.exception.ResourceNotFoundException;
 import com.sportify.app.service.order.OrderService;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,6 +21,8 @@ public class OrderController {
 
     @Autowired
     private OrderService orderService;
+    @Autowired
+    private ModelMapper mapper;
 
     @GetMapping("/{orderId}")
     public ResponseEntity<ApiResponse> getOrderByOrderId(@PathVariable long orderId){
@@ -44,7 +48,20 @@ public class OrderController {
     public ResponseEntity<ApiResponse> placeOrderForUser(@PathVariable long userId){
 
         try {
-            return ResponseEntity.ok(new ApiResponse("Success", orderService.placeOrder(userId)));
+            return ResponseEntity.ok(new ApiResponse("Success",
+                    mapper.map(orderService.placeOrder(userId), OrderDTO.class)));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new ApiResponse(e.getMessage(), null));
+        }
+    }
+
+    @DeleteMapping("/{orderId}")
+    public ResponseEntity<ApiResponse> cancelOrderForUser(@PathVariable long orderId){
+
+        try {
+            orderService.cancelOrder(orderId);
+            return ResponseEntity.ok(new ApiResponse("Cancelled Order", null));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(new ApiResponse(e.getMessage(), null));

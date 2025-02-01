@@ -1,6 +1,7 @@
 package com.sportify.app.service.cart;
 
 import com.sportify.app.entity.Cart;
+import com.sportify.app.entity.User;
 import com.sportify.app.exception.ResourceNotFoundException;
 import com.sportify.app.repository.CartItemRepository;
 import com.sportify.app.repository.CartRepository;
@@ -8,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
@@ -40,6 +42,7 @@ public class CartServiceImpl implements CartService{
         Cart cart = getCart(id);
         cartItemRepository.deleteAllByCartId(id);
         cart.getCartItems().clear();
+        cart.setTotalAmount(0);
         cartRepository.deleteById(id);
     }
 
@@ -51,12 +54,21 @@ public class CartServiceImpl implements CartService{
     }
 
     // Increment counter and return to initialize new Cart (In non-user case)
+
+//    public Long initializeNewCart(){
+//        Cart cart = new Cart();
+//        long newCartId = atomicLong.incrementAndGet();
+//        cart.setId(newCartId);
+//        return cartRepository.save(cart).getId();
+//    }
     @Override
-    public Long initializeNewCart(){
-        Cart cart = new Cart();
-        long newCartId = atomicLong.incrementAndGet();
-        cart.setId(newCartId);
-        return cartRepository.save(cart).getId();
+    public Cart initializeNewCart(User user){
+        return Optional.ofNullable(getCartByUserId(user.getId()))
+                .orElseGet(() -> {
+                    Cart cart = new Cart();
+                    cart.setUser(user);
+                    return cartRepository.save(cart);
+                });
     }
 
     @Override

@@ -29,11 +29,11 @@ public class ImageController {
     @Autowired
     private ImageService imageService;
 
-    @PostMapping("/{id}")
-    public ResponseEntity<ApiResponse> saveImage(@RequestParam MultipartFile file, @PathVariable Long id){
+    @PostMapping("/{productId}")
+    public ResponseEntity<ApiResponse> saveImage(@RequestParam MultipartFile file, @PathVariable Long productId){
 
         try{
-            ImageDTO imageDTO = imageService.saveImage(file, id);
+            ImageDTO imageDTO = imageService.saveImage(file, productId);
             return ResponseEntity.ok(new ApiResponse("Upload Success", imageDTO));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -49,7 +49,7 @@ public class ImageController {
             Image image = imageService.getImageById(id);
             byte[] imageBytes = image.getImage().getBytes(1, (int) image.getImage().length());
             return ResponseEntity.ok()
-                    .contentType(MediaType.parseMediaType(image.getFileType()))
+                    .contentType(MediaType.IMAGE_JPEG)
                     .body(imageBytes);
         } catch (ResourceNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)

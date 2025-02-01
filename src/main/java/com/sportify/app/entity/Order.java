@@ -12,6 +12,7 @@ import java.util.Set;
  * Time Created:16:06
  */
 @Entity
+@Table(name = "orders")
 public class Order extends BaseEntity{
 
     private LocalDate orderDate;

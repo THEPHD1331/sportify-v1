@@ -2,7 +2,10 @@ package com.sportify.app.service.user;
 
 import com.sportify.app.dto.request.CreateUserRequest;
 import com.sportify.app.dto.request.UpdateUserRequest;
+import com.sportify.app.dto.response.UserDTO;
 import com.sportify.app.entity.User;
+
+import java.util.List;
 
 /**
  * Author: Paras Dongre
@@ -11,7 +14,8 @@ import com.sportify.app.entity.User;
  */
 public interface UserService {
 
-    User getUserById(long userId);
+    List<UserDTO> getAllUsers();
+    UserDTO getUserById(long userId);
     User createUser(CreateUserRequest userRequest);
     User updateUser(long userId, UpdateUserRequest userRequest);
     void deleteUser(long userId);

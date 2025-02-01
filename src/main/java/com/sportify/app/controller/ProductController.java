@@ -4,6 +4,7 @@ import com.sportify.app.dto.response.ProductDTO;
 import com.sportify.app.dto.request.ProductRequest;
 import com.sportify.app.dto.response.ApiResponse;
 import com.sportify.app.entity.Product;
+import com.sportify.app.exception.AlreadyExistsException;
 import com.sportify.app.exception.ProductNotFoundException;
 import com.sportify.app.service.product.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -92,6 +93,9 @@ public class ProductController {
             return ResponseEntity.ok(new ApiResponse("Success", product));
         } catch (ProductNotFoundException e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new ApiResponse(e.getMessage(), null));
+        } catch (AlreadyExistsException e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT)
                     .body(new ApiResponse(e.getMessage(), null));
         }
     }

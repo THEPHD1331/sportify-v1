@@ -48,9 +48,13 @@ public class ImageServiceImpl implements ImageService{
             image.setProduct(product);
 
             // Build the url to view or download image
-            String imageUrl = "/api/images/view/"+image.getId();
-            image.setImageUrl(imageUrl);
+//            String imageUrl = "/api/v1/images/view/"+image.getId();
+//            image.setImageUrl(imageUrl);
             Image savedImage =  imageRepository.save(image);
+
+            String imageUrl = "/api/v1/images/view/"+image.getId();
+            savedImage.setImageUrl(imageUrl);
+            imageRepository.save(savedImage);
 
             // Map the saved entity to Image DTO obj and return it
             imageDTO.setId(savedImage.getId());
@@ -64,18 +68,18 @@ public class ImageServiceImpl implements ImageService{
     }
 
     @Override
-    public void deleteImage(long id) {
-            imageRepository.findById(id)
+    public void deleteImage(long imageId) {
+            imageRepository.findById(imageId)
                     .ifPresentOrElse(i -> imageRepository.delete(i),
                     () -> {
-                throw new ResourceNotFoundException("Image not found for Id:"+id);
+                throw new ResourceNotFoundException("Image not found for Id:"+imageId);
                     });
     }
 
     @Override
-    public void updateImage(MultipartFile file, long id) {
+    public void updateImage(MultipartFile file, long imageId) {
 
-        Image image = getImageById(id);
+        Image image = getImageById(imageId);
 
         try {
             // Setting fileName and image from bytes to blob

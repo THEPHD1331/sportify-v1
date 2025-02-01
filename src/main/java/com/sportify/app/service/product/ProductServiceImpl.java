@@ -3,6 +3,7 @@ import com.sportify.app.dto.response.ProductDTO;
 import com.sportify.app.dto.request.ProductRequest;
 import com.sportify.app.entity.Category;
 import com.sportify.app.entity.Product;
+import com.sportify.app.exception.AlreadyExistsException;
 import com.sportify.app.exception.ProductNotFoundException;
 import com.sportify.app.repository.CategoryRepository;
 import com.sportify.app.repository.ProductRepository;
@@ -38,6 +39,12 @@ public class ProductServiceImpl implements ProductService{
     // Check if the category exists in the db
         // If YES, set it as new product for the category
         // If NO, save it as new Category and set the product
+
+        if (productExists(productRequest.getProductName(), productRequest.getBrand())) {
+            throw new AlreadyExistsException(productRequest.getBrand() + " "
+                    + productRequest.getProductName() + " already exists, you may update this product instead!");
+        }
+
         Category category = Optional.ofNullable(categoryRepository
                 .findByName(productRequest.getCategory().getName()))
                 .orElseGet(() -> {
@@ -131,5 +138,9 @@ public class ProductServiceImpl implements ProductService{
         return productRepository.findByProductName(productName).stream()
                 .map(p -> modelMapper.map(p, ProductDTO.class))
                 .toList();
+    }
+
+    private boolean productExists(String name, String brand) {
+        return productRepository.existsByProductNameAndBrand(name, brand);
     }
 }

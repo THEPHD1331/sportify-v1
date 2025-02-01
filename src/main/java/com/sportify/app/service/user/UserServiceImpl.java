@@ -2,14 +2,18 @@ package com.sportify.app.service.user;
 
 import com.sportify.app.dto.request.CreateUserRequest;
 import com.sportify.app.dto.request.UpdateUserRequest;
+import com.sportify.app.dto.response.UserDTO;
 import com.sportify.app.entity.User;
 import com.sportify.app.enums.UserRole;
 import com.sportify.app.exception.AlreadyExistsException;
 import com.sportify.app.exception.ResourceNotFoundException;
 import com.sportify.app.repository.UserRepository;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -23,10 +27,21 @@ public class UserServiceImpl implements UserService{
 
     @Autowired
     private UserRepository userRepository;
+    @Autowired
+    private ModelMapper modelMapper;
 
     @Override
-    public User getUserById(long userId) {
+    public List<UserDTO> getAllUsers() {
+        return userRepository.findAll()
+                .stream()
+                .map(user -> modelMapper.map(user, UserDTO.class))
+                .toList();
+    }
+
+    @Override
+    public UserDTO getUserById(long userId) {
         return userRepository.findById(userId)
+                .map(user -> modelMapper.map(user, UserDTO.class))
                 .orElseThrow(() -> new ResourceNotFoundException("User not Found"));
     }
 
